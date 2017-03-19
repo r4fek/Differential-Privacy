@@ -55,7 +55,7 @@ def simulate(url, privacy):
 
 @click.command()
 @click.argument('url', default='http://stackoverflow.com/questions/5290994/python-remove-and-replace-printed-items')
-@click.option('-p', '--privacy', default=90, help='Level of privacy <100. Higher == better user privacy')
+@click.option('-p', '--privacy', default=90.0, help='Level of privacy <100. Higher == better user privacy')
 def main(url, privacy):
     simulate(url, privacy/100.0)
 
