@@ -14,5 +14,5 @@ setup(name='privsim',
       ],
       entry_points='''
           [console_scripts]
-          privsim=privsim.main:main
+          privsim=privsim.main:cli
       ''')
