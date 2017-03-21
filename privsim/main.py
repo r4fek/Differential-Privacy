@@ -3,11 +3,11 @@ import base64
 
 import click
 from collections import Counter
-from string import digits, letters, punctuation
+from string import digits, ascii_letters, punctuation
 import random
 
 random = random.SystemRandom()
-ascii = digits + letters + punctuation
+ascii = digits + ascii_letters + punctuation
 
 
 def get_random_char():
@@ -35,7 +35,7 @@ def check_reports(url, counters):
 
 def _simulate(url, privacy):
     assert 0 < privacy < 1
-    counters = [Counter() for _ in xrange(len(url))]
+    counters = [Counter() for _ in range(len(url))]
     num_generated = 0
 
     while True:
@@ -45,7 +45,7 @@ def _simulate(url, privacy):
             counters[i][letter] += 1
 
         sys.stdout.write('\rrecov: {} | gen: {}'.format(
-            ''.join([counters[i].most_common(1)[0][0] for i in xrange(len(url))]), masked))
+            ''.join([counters[i].most_common(1)[0][0] for i in range(len(url))]), masked))
         sys.stdout.flush()
 
         if check_reports(url, counters):
@@ -71,15 +71,15 @@ def recover(path):
     reports = [base64.urlsafe_b64decode(r) for r in reports if r]
 
     num_chars = len(reports[0])
-    counters = [Counter() for _ in xrange(num_chars)]
-    recovered = ''
+    counters = [Counter() for _ in range(num_chars)]
+    recovered = b''
     recovered_reports = []
 
     for report in reports:
         for i, letter in enumerate(report):
             counters[i][letter] += 1
-        recovered = ''.join([counters[l].most_common(1)[0][0] for l in xrange(num_chars)])
-        print 'recov: {}'.format(recovered)
+        recovered = bytes([counters[l].most_common(1)[0][0] for l in range(num_chars)])
+        print('recov: {}'.format(recovered))
         recovered_reports.append(recovered)
     try:
         click.echo(
