@@ -50,7 +50,7 @@ def _simulate(url, privacy):
 
         if check_reports(url, counters):
             click.echo(
-                click.style('\n\n{} reports required to recover the original URL {} with privacy level {}%'
+                click.style('\n\n{} reports required to decode the original URL {} with privacy level {}%'
                             .format(num_generated, url, privacy*100.0), fg='green'))
             return
 
@@ -63,8 +63,9 @@ def simulate(url, privacy):
 
 
 @click.command()
+@click.argument('url')
 @click.argument('path', default='reports.txt')
-def recover(path):
+def recover(url, path):
     with open(path, 'r') as f:
         reports = f.readlines()
 
@@ -72,26 +73,31 @@ def recover(path):
 
     num_chars = len(reports[0])
     counters = [Counter() for _ in range(num_chars)]
-    recovered = b''
-    recovered_reports = []
 
-    for report in reports:
+    for needed, report in enumerate(reports):
         for i, letter in enumerate(report):
             counters[i][letter] += 1
-        recovered = bytes([counters[l].most_common(1)[0][0] for l in range(num_chars)])
+        recovered = bytes(
+            [counters[l].most_common(1)[0][0] for l in range(num_chars)])
         print('recov: {}'.format(recovered))
-        recovered_reports.append(recovered)
-    try:
-        click.echo(
-            click.style('\nRecovered! {}'.format(recovered.decode('utf-8')),
-                        fg='green'))
-        reports_needed = len([r for r in recovered_reports if r != recovered])
-        click.echo(
-            click.style('Reports needed: {}'.format(reports_needed),
-                        fg='green'))
-    except UnicodeDecodeError:
-        click.echo(
-            click.style('\nUnable to recover full URL :(', fg='red'))
+
+        try:
+            recovered = recovered.decode('utf-8')
+        except UnicodeDecodeError:
+            pass
+
+        if recovered == url:
+            click.echo(
+                click.style(
+                    '\nDecoded {}!'.format(recovered),
+                    fg='green'))
+            click.echo(
+                click.style('Reports needed: {}'.format(needed+1),
+                            fg='green'))
+            return
+
+    click.echo(
+        click.style('\nUnable to decode full URL :(', fg='red'))
 
 
 @click.group()
